@@ -28,16 +28,15 @@
                 >
 
                 <TextView
+                    android:id="@+id/profile_fragment_username"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:id="@+id/profile_fragment_username"
-                    android:text="Username"
-                    android:textSize="18dp"
-                    android:maxLines="1"
-                    android:textStyle="bold"
-                    android:textColor="@color/black"
                     android:layout_centerVertical="true"
-                    >
+                    android:maxLines="1"
+                    android:text="Username"
+                    android:textColor="@color/black"
+                    android:textSize="18dp"
+                    android:textStyle="bold">
 
                 </TextView>
                 
@@ -215,6 +214,8 @@
                         >
 
                     </Button>
+
+
 
                 </LinearLayout>
 

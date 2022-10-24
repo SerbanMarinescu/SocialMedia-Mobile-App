@@ -42,10 +42,9 @@
                     android:id="@+id/save_info_profile_btn"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
-                    android:layout_marginRight="15dp"
                     android:layout_alignParentEnd="true"
-                    android:src="@drawable/save_edited_info"
-                    >
+                    android:layout_marginRight="15dp"
+                    android:src="@drawable/save_edited_info">
 
                 </ImageView>
 
@@ -61,8 +60,7 @@
         android:layout_below="@+id/app_bar_layout_profile"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="14dp"
-        android:src="@drawable/profile"
-        >
+        android:src="@drawable/profile">
 
     </de.hdodenhof.circleimageview.CircleImageView>
 
@@ -71,13 +69,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/profile_image_view_profile_frag"
-        android:text="Change Image"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="6dp"
-        android:textStyle="bold"
-        android:textSize="16dp"
+        android:text="Change Image"
         android:textColor="@color/colorPrimary"
-        >
+        android:textSize="16dp"
+        android:textStyle="bold">
 
     </TextView>
 
@@ -87,11 +84,10 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/change_image_text_btn"
         android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
         android:layout_marginTop="16dp"
-        android:inputType="text"
+        android:layout_marginRight="20dp"
         android:hint="Full Name"
-        >
+        android:inputType="text">
 
     </EditText>
 
@@ -101,11 +97,10 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/full_name_profile_frag"
         android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
         android:layout_marginTop="16dp"
-        android:inputType="text"
+        android:layout_marginRight="20dp"
         android:hint="Username"
-        >
+        android:inputType="text">
 
     </EditText>
 
@@ -115,11 +110,10 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/Username_profile_frag"
         android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
         android:layout_marginTop="16dp"
-        android:inputType="text"
+        android:layout_marginRight="20dp"
         android:hint="Bio"
-        >
+        android:inputType="text">
 
     </EditText>
 

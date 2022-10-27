@@ -206,7 +206,7 @@ class AccountSettingsActivity : AppCompatActivity() {
 
                         ref.child(firebaseUser.uid).updateChildren(userMap)
 
-                        Toast.makeText(this,"Account Information has been saved successfuly",Toast.LENGTH_LONG).show()
+                        Toast.makeText(this,"Account Information has been saved successfully",Toast.LENGTH_LONG).show()
 
                         val intent=Intent(this@AccountSettingsActivity,MainActivity::class.java)
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)

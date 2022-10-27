@@ -59,6 +59,8 @@ class AccountSettingsActivity : AppCompatActivity() {
 
         storageProfilePicRef=FirebaseStorage.getInstance().reference.child("Profile Pictures")
 
+        imageProfile=findViewById(R.id.profile_image_view_profile_frag)
+
         logoutBtn.setOnClickListener{
 
             FirebaseAuth.getInstance().signOut()
@@ -96,7 +98,6 @@ class AccountSettingsActivity : AppCompatActivity() {
         if(requestCode==CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE && resultCode==Activity.RESULT_OK && data!=null){
             val result=CropImage.getActivityResult(data)
             imageUri=result.uri
-            imageProfile=findViewById(R.id.profile_image_view_profile_frag)
             imageProfile.setImageURI(imageUri)
         }
         else{
@@ -107,8 +108,6 @@ class AccountSettingsActivity : AppCompatActivity() {
 
     private fun updateUserInfoOnly() {
         val userRef= FirebaseDatabase.getInstance().reference.child("Users")
-
-
 
         if(fullName.text.toString()==""){
             Toast.makeText(this,"Please write fullname first!", Toast.LENGTH_LONG).show()
@@ -147,6 +146,7 @@ class AccountSettingsActivity : AppCompatActivity() {
                     val profile_img_settings=findViewById<CircleImageView>(R.id.profile_image_view_profile_frag)
                     Picasso.get().load(user!!.getImage()).placeholder(R.drawable.profile).into(profile_img_settings)
 
+
                     val profile_username=findViewById<TextView>(R.id.Username_profile_frag)
                     val profile_fullname=findViewById<TextView>(R.id.full_name_profile_frag)
                     val profile_bio=findViewById<TextView>(R.id.bio_profile_frag)
@@ -183,7 +183,8 @@ class AccountSettingsActivity : AppCompatActivity() {
                 uploadTask=fileReference.putFile(imageUri!!)
                 uploadTask.continueWithTask<Uri>(Continuation <UploadTask.TaskSnapshot, Task<Uri>> { task ->
                     if(!task.isSuccessful){
-                        Toast.makeText(this,"Eroare man...",Toast.LENGTH_LONG).show()
+                        val eroare=task.exception.toString()
+                        Toast.makeText(this,"$eroare",Toast.LENGTH_LONG).show()
                         task.exception?.let {
                             throw it
                             progressDialog.dismiss()

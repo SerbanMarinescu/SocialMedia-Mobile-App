@@ -1,6 +1,7 @@
 package com.example.proiect_licenta_2023.Adapter
 
 import android.content.Context
+import android.content.Intent
 import android.media.Image
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +10,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.NonNull
 import androidx.recyclerview.widget.RecyclerView
+import com.example.proiect_licenta_2023.MainActivity
 import com.example.proiect_licenta_2023.Model.Post
 import com.example.proiect_licenta_2023.Model.User
 import com.example.proiect_licenta_2023.R
@@ -37,8 +39,35 @@ class PostAdapter(private val mContext: Context,
         val post=mPost[position]
         
         Picasso.get().load(post.getPostImage()).into(holder.postImage)
+
+        if(post.getDescription().equals("")){
+            holder.description.visibility=View.GONE
+        }
+        else {
+            holder.description.visibility=View.VISIBLE
+            holder.description.text=post.getDescription()
+        }
         
         publisherInfo(holder.profileImage, holder.userName, holder.publisher, post.getPublisher())
+
+        isLikes(post.getPostId(),holder.likeButton)
+
+        numberOfLikes(holder.likes, post.getPostId())
+
+        holder.likeButton.setOnClickListener{
+            if(holder.likeButton.tag == "Like"){
+                FirebaseDatabase.getInstance().reference.child("Likes").child(post.getPostId())
+                    .child(firebaseUser!!.uid).setValue(true)
+            }
+            else {
+                FirebaseDatabase.getInstance().reference.child("Likes").child(post.getPostId())
+                    .child(firebaseUser!!.uid).removeValue()
+
+                val intent= Intent(mContext,MainActivity::class.java)
+                mContext.startActivity(intent)
+
+            }
+        }
     }
 
 
@@ -86,6 +115,47 @@ class PostAdapter(private val mContext: Context,
                     userName.setText(user.getUsername())
                     publisher.setText(user.getFullname())
 
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+
+            }
+
+        })
+    }
+
+    private fun isLikes(postId: String, likeButton: ImageView) {
+
+        val firebaseUser=FirebaseAuth.getInstance().currentUser
+        val likesRef=FirebaseDatabase.getInstance().reference.child("Likes").child(postId)
+
+        likesRef.addValueEventListener(object : ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if(snapshot.child(firebaseUser!!.uid).exists()){
+                    likeButton.setImageResource(R.drawable.heart_clicked)
+                    likeButton.tag = "Liked"
+                }
+                else {
+                    likeButton.setImageResource(R.drawable.heart_not_clicked)
+                    likeButton.tag = "Like"
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+
+            }
+
+        })
+    }
+
+    private fun numberOfLikes(likes: TextView, postId: String) {
+        val likesRef=FirebaseDatabase.getInstance().reference.child("Likes").child(postId)
+
+        likesRef.addValueEventListener(object : ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if(snapshot.exists()){
+                    likes.text=snapshot.childrenCount.toString()+ "Likes"
                 }
             }
 

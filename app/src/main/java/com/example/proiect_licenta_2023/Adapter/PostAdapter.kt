@@ -10,6 +10,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.NonNull
 import androidx.recyclerview.widget.RecyclerView
+import com.example.proiect_licenta_2023.CommentsActivity
 import com.example.proiect_licenta_2023.MainActivity
 import com.example.proiect_licenta_2023.Model.Post
 import com.example.proiect_licenta_2023.Model.User
@@ -49,10 +50,9 @@ class PostAdapter(private val mContext: Context,
         }
         
         publisherInfo(holder.profileImage, holder.userName, holder.publisher, post.getPublisher())
-
         isLikes(post.getPostId(),holder.likeButton)
-
         numberOfLikes(holder.likes, post.getPostId())
+        numberOfComments(holder.comments, post.getPostId())
 
         holder.likeButton.setOnClickListener{
             if(holder.likeButton.tag == "Like"){
@@ -67,6 +67,20 @@ class PostAdapter(private val mContext: Context,
                 mContext.startActivity(intent)
 
             }
+        }
+
+        holder.commentButton.setOnClickListener{
+            val intentComment= Intent(mContext,CommentsActivity::class.java)
+            intentComment.putExtra("postId",post.getPostId())
+            intentComment.putExtra("publisherId",post.getPublisher())
+            mContext.startActivity(intentComment)
+        }
+
+        holder.comments.setOnClickListener{
+            val intentComment= Intent(mContext,CommentsActivity::class.java)
+            intentComment.putExtra("postId",post.getPostId())
+            intentComment.putExtra("publisherId",post.getPublisher())
+            mContext.startActivity(intentComment)
         }
     }
 
@@ -155,7 +169,24 @@ class PostAdapter(private val mContext: Context,
         likesRef.addValueEventListener(object : ValueEventListener{
             override fun onDataChange(snapshot: DataSnapshot) {
                 if(snapshot.exists()){
-                    likes.text=snapshot.childrenCount.toString()+ "Likes"
+                    likes.text=snapshot.childrenCount.toString()+ " Likes"
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+
+            }
+
+        })
+    }
+
+    private fun numberOfComments(comments: TextView, postId: String) {
+        val likesRef=FirebaseDatabase.getInstance().reference.child("Comments").child(postId)
+
+        likesRef.addValueEventListener(object : ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if(snapshot.exists()){
+                    comments.text="View all "+snapshot.childrenCount.toString()+ " comments"
                 }
             }
 

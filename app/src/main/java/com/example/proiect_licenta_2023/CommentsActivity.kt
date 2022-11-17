@@ -1,11 +1,17 @@
 package com.example.proiect_licenta_2023
 
+import android.media.Image
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.proiect_licenta_2023.Adapter.CommentsAdapter
+import com.example.proiect_licenta_2023.Model.Comment
 import com.example.proiect_licenta_2023.Model.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -21,8 +27,14 @@ class CommentsActivity : AppCompatActivity() {
     private var postId=""
     private var publisherId=""
     private var firebaseUser:FirebaseUser?=null
+    private var commentsAdapter:CommentsAdapter?=null
+    private var commentList:MutableList<Comment>?=null
+
     private lateinit var addComment:EditText
     private lateinit var postComment:TextView
+    private lateinit var recyclerView:RecyclerView
+    private lateinit var profile_img_settings:CircleImageView
+    private lateinit var postImage:ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,6 +48,18 @@ class CommentsActivity : AppCompatActivity() {
         firebaseUser=FirebaseAuth.getInstance().currentUser
         addComment=findViewById(R.id.add_comment)
         postComment=findViewById(R.id.post_comment)
+        recyclerView=findViewById(R.id.recycler_view_comments)
+        profile_img_settings=findViewById(R.id.profile_image_comment)
+        postImage=findViewById(R.id.post_image_comments)
+
+        val linearLayoutManager=LinearLayoutManager(this)
+        linearLayoutManager.reverseLayout=true
+        recyclerView.layoutManager=linearLayoutManager
+
+        commentList=ArrayList()
+        commentsAdapter= CommentsAdapter(this,commentList)
+        recyclerView.adapter=commentsAdapter
+
 
         postComment.setOnClickListener(View.OnClickListener {
             if(addComment.text.toString()==null){
@@ -47,6 +71,8 @@ class CommentsActivity : AppCompatActivity() {
         })
 
         retrieveUserImage()
+        readComments()
+        getPostImage()
 
     }
 
@@ -58,10 +84,26 @@ class CommentsActivity : AppCompatActivity() {
 
                 if(snapshot.exists()){
                     val user=snapshot.getValue<User>(User::class.java)
-                    val profile_img=findViewById<CircleImageView>(R.id.pro_image_profile_frag)
-                    val profile_img_settings=findViewById<CircleImageView>(R.id.profile_image_comment)
                     Picasso.get().load(user!!.getImage()).placeholder(R.drawable.profile).into(profile_img_settings)
+                }
+            }
 
+            override fun onCancelled(error: DatabaseError) {
+
+            }
+
+        })
+    }
+
+    private fun getPostImage(){
+        val postRef= FirebaseDatabase.getInstance().reference.child("Posts").child(postId).child("postimage")
+
+        postRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+
+                if(snapshot.exists()){
+                    val image=snapshot.value.toString()
+                    Picasso.get().load(image).placeholder(R.drawable.profile).into(postImage)
                 }
             }
 
@@ -84,6 +126,29 @@ class CommentsActivity : AppCompatActivity() {
 
         addComment.text.clear()
 
+    }
+
+    private fun readComments(){
+        val commentsRef=FirebaseDatabase.getInstance().reference.child("Comments").child(postId)
+
+        commentsRef.addValueEventListener(object : ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if(snapshot.exists()){
+                    commentList!!.clear()
+
+                    for(p in snapshot.children){
+                        val comment=p.getValue(Comment::class.java)
+                        commentList!!.add(comment!!)
+                    }
+                    commentsAdapter!!.notifyDataSetChanged()
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+
+            }
+
+        })
     }
 
 

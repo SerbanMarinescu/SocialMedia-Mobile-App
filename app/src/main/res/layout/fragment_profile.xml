@@ -57,16 +57,16 @@
         </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
 
-    <ScrollView
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:id="@+id/scroll_view"
         android:layout_below="@+id/app_bar_layout_profile"
         >
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="vertical"
             >
 
@@ -289,9 +289,25 @@
 
             </LinearLayout>
 
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/recycle_view_upload_pic"
+                >
+
+            </androidx.recyclerview.widget.RecyclerView>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/recycle_view_saved_pic"
+                android:visibility="gone"
+                >
+
+            </androidx.recyclerview.widget.RecyclerView>
         </LinearLayout>
 
-    </ScrollView>
+    </RelativeLayout>
 
 
 </RelativeLayout>

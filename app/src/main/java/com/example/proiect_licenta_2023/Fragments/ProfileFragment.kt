@@ -10,7 +10,12 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.proiect_licenta_2023.AccountSettingsActivity
+import com.example.proiect_licenta_2023.Adapter.MyImagesAdapter
+import com.example.proiect_licenta_2023.Model.Post
 import com.example.proiect_licenta_2023.Model.User
 import com.example.proiect_licenta_2023.R
 import com.google.firebase.auth.FirebaseAuth
@@ -22,6 +27,8 @@ import com.google.firebase.database.ValueEventListener
 import com.squareup.picasso.Picasso
 import de.hdodenhof.circleimageview.CircleImageView
 import org.w3c.dom.Text
+import java.util.*
+import kotlin.collections.ArrayList
 
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val ARG_PARAM1 = "param1"
@@ -43,6 +50,10 @@ class ProfileFragment : Fragment() {
     private lateinit var profile_username:TextView
     private lateinit var profile_fullname:TextView
     private lateinit var profile_bio:TextView
+    private lateinit var recyclerViewUpload:RecyclerView
+    private var myImagesAdapter:MyImagesAdapter?=null
+
+    private var postList:List<Post>?=null
 
 
     override fun onCreateView(
@@ -60,9 +71,17 @@ class ProfileFragment : Fragment() {
         profile_username= view.findViewById(R.id.profile_fragment_username)
         profile_fullname=view.findViewById(R.id.full_name_profile_frag)
         profile_bio=view.findViewById(R.id.bio_profile_frag)
+        recyclerViewUpload=view.findViewById(R.id.recycle_view_upload_pic)
+
+        recyclerViewUpload.setHasFixedSize(true)
+        val linearLayoutManager:LinearLayoutManager=GridLayoutManager(context,3)
+        recyclerViewUpload.layoutManager=linearLayoutManager
+        postList=ArrayList()
+        myImagesAdapter=context?.let{ MyImagesAdapter(it,postList as ArrayList<Post>) }
+        recyclerViewUpload.adapter=myImagesAdapter
+
 
         val pref=context?.getSharedPreferences("PREFS", Context.MODE_PRIVATE)
-
 
         if(pref!=null){
             this.profileId= pref.getString("profileId","none").toString()
@@ -76,6 +95,9 @@ class ProfileFragment : Fragment() {
         else if(profileId != firebaseUser.uid){
             checkFollowandFollowing()
         }
+
+
+
 
 
         edit_account_btn.setOnClickListener {
@@ -115,6 +137,7 @@ class ProfileFragment : Fragment() {
         getFollowers()
         getFollowings()
         userInfo()
+        myPhotos()
 
         return view
     }
@@ -205,6 +228,34 @@ class ProfileFragment : Fragment() {
                     profile_username.text = user.getUsername()
                     profile_fullname.text = user.getFullname()
                     profile_bio.text = user.getBio()
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+
+            }
+
+        })
+    }
+
+    private fun myPhotos(){
+        val postRef=FirebaseDatabase.getInstance().reference.child("Posts")
+
+        postRef.addValueEventListener(object : ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if(snapshot.exists()){
+                    (postList as ArrayList<Post>).clear()
+
+                    for (snap in snapshot.children){
+                        val post=snap.getValue(Post::class.java)
+
+                        if(post!!.getPublisher().equals(profileId)){
+                            (postList as ArrayList<Post>).add(post)
+                        }
+
+                        Collections.reverse(postList)
+                        myImagesAdapter!!.notifyDataSetChanged()
+                    }
                 }
             }
 

@@ -48,13 +48,12 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <ImageView
+        android:id="@+id/post_image_comments"
         android:layout_width="match_parent"
         android:layout_height="200dp"
-        android:id="@+id/post_image_comments"
-        android:scaleType="centerCrop"
-        android:src="@drawable/profile"
         android:layout_below="@+id/app_bar_layout_comments"
-        >
+        android:scaleType="centerCrop"
+        android:src="@drawable/profile">
 
     </ImageView>
 
@@ -101,17 +100,16 @@
         </EditText>
 
         <TextView
+            android:id="@+id/post_comment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/post_comment"
-            android:textColor="@color/colorPrimary"
-            android:textStyle="bold"
-            android:text="Publish"
-            android:textSize="20dp"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:layout_marginEnd="6dp"
-            >
+            android:text="Publish"
+            android:textColor="@color/colorPrimary"
+            android:textSize="20dp"
+            android:textStyle="bold">
 
         </TextView>
 

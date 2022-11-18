@@ -53,6 +53,7 @@ class PostAdapter(private val mContext: Context,
         isLikes(post.getPostId(),holder.likeButton)
         numberOfLikes(holder.likes, post.getPostId())
         numberOfComments(holder.comments, post.getPostId())
+        checkSavedStatus(post.getPostId(),holder.saveButton)
 
         holder.likeButton.setOnClickListener{
             if(holder.likeButton.tag == "Like"){
@@ -81,6 +82,17 @@ class PostAdapter(private val mContext: Context,
             intentComment.putExtra("postId",post.getPostId())
             intentComment.putExtra("publisherId",post.getPublisher())
             mContext.startActivity(intentComment)
+        }
+
+        holder.saveButton.setOnClickListener{
+            if(holder.saveButton.tag=="Save"){
+                FirebaseDatabase.getInstance().reference.child("Saves")
+                    .child(firebaseUser!!.uid).child(post.getPostId()).setValue(true)
+            }
+            else{
+                FirebaseDatabase.getInstance().reference.child("Saves")
+                    .child(firebaseUser!!.uid).child(post.getPostId()).removeValue()
+            }
         }
     }
 
@@ -187,6 +199,28 @@ class PostAdapter(private val mContext: Context,
             override fun onDataChange(snapshot: DataSnapshot) {
                 if(snapshot.exists()){
                     comments.text="View all "+snapshot.childrenCount.toString()+ " comments"
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+
+            }
+
+        })
+    }
+
+    private fun checkSavedStatus(postid:String, imageView:ImageView){
+       val saveRef= FirebaseDatabase.getInstance().reference.child("Saves").child(firebaseUser!!.uid)
+
+        saveRef.addValueEventListener(object : ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if(snapshot.child(postid).exists()){
+                    imageView.setImageResource(R.drawable.save_large_icon)
+                    imageView.tag="Saved"
+                }
+                else{
+                    imageView.setImageResource(R.drawable.save_unfilled_large_icon)
+                    imageView.tag="Save"
                 }
             }
 

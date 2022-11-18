@@ -51,6 +51,7 @@ class ProfileFragment : Fragment() {
     private lateinit var profile_fullname:TextView
     private lateinit var profile_bio:TextView
     private lateinit var recyclerViewUpload:RecyclerView
+    private lateinit var total_posts:TextView
     private var myImagesAdapter:MyImagesAdapter?=null
 
     private var postList:List<Post>?=null
@@ -72,6 +73,7 @@ class ProfileFragment : Fragment() {
         profile_fullname=view.findViewById(R.id.full_name_profile_frag)
         profile_bio=view.findViewById(R.id.bio_profile_frag)
         recyclerViewUpload=view.findViewById(R.id.recycle_view_upload_pic)
+        total_posts=view.findViewById(R.id.total_posts)
 
         recyclerViewUpload.setHasFixedSize(true)
         val linearLayoutManager:LinearLayoutManager=GridLayoutManager(context,3)
@@ -138,6 +140,7 @@ class ProfileFragment : Fragment() {
         getFollowings()
         userInfo()
         myPhotos()
+        getTotalNumberOfPosts()
 
         return view
     }
@@ -265,6 +268,36 @@ class ProfileFragment : Fragment() {
 
         })
     }
+
+
+
+    private fun getTotalNumberOfPosts(){
+        val postRef=FirebaseDatabase.getInstance().reference.child("Posts")
+
+        postRef.addValueEventListener(object : ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if(snapshot.exists()){
+                    var postCounter=0;
+
+                    for(snap in snapshot.children){
+                        val post=snap.getValue(Post::class.java)!!
+
+                        if(post.getPublisher()==profileId){
+                            postCounter++;
+                        }
+                    }
+                    total_posts.text=postCounter.toString()
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+
+            }
+
+        })
+    }
+
+
 
     override fun onStop() {
         super.onStop()

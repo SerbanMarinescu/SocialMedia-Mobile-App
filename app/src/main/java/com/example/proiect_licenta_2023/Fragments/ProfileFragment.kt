@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,6 +19,7 @@ import com.example.proiect_licenta_2023.Adapter.MyImagesAdapter
 import com.example.proiect_licenta_2023.Model.Post
 import com.example.proiect_licenta_2023.Model.User
 import com.example.proiect_licenta_2023.R
+import com.example.proiect_licenta_2023.ShowUsersActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DataSnapshot
@@ -51,10 +53,15 @@ class ProfileFragment : Fragment() {
     private lateinit var profile_fullname:TextView
     private lateinit var profile_bio:TextView
     private lateinit var recyclerViewUpload:RecyclerView
+    private lateinit var recycleViewSavedPosts:RecyclerView
     private lateinit var total_posts:TextView
+    private lateinit var myPostsBtn:ImageButton
+    private lateinit var savePostBtn:ImageButton
     private var myImagesAdapter:MyImagesAdapter?=null
-
+    private var myImagesAdapterSavedImage:MyImagesAdapter?=null
     private var postList:List<Post>?=null
+    private var postListSaved:List<Post>?=null
+    private var mySavesImage:List<String>?=null
 
 
     override fun onCreateView(
@@ -74,6 +81,8 @@ class ProfileFragment : Fragment() {
         profile_bio=view.findViewById(R.id.bio_profile_frag)
         recyclerViewUpload=view.findViewById(R.id.recycle_view_upload_pic)
         total_posts=view.findViewById(R.id.total_posts)
+        myPostsBtn=view.findViewById(R.id.images_grid_view_btn)
+        savePostBtn=view.findViewById(R.id.images_save_btn)
 
         recyclerViewUpload.setHasFixedSize(true)
         val linearLayoutManager:LinearLayoutManager=GridLayoutManager(context,3)
@@ -81,6 +90,16 @@ class ProfileFragment : Fragment() {
         postList=ArrayList()
         myImagesAdapter=context?.let{ MyImagesAdapter(it,postList as ArrayList<Post>) }
         recyclerViewUpload.adapter=myImagesAdapter
+
+
+
+        recycleViewSavedPosts = view.findViewById(R.id.recycle_view_saved_pic)
+        recycleViewSavedPosts.setHasFixedSize(true)
+        val linearLayoutManagerSave : LinearLayoutManager = GridLayoutManager(context, 3)
+        recycleViewSavedPosts.layoutManager = linearLayoutManagerSave
+        postListSaved= ArrayList()
+        myImagesAdapterSavedImage = context?.let { MyImagesAdapter(it, postListSaved as ArrayList<Post>) }
+        recycleViewSavedPosts.adapter = myImagesAdapterSavedImage
 
 
         val pref=context?.getSharedPreferences("PREFS", Context.MODE_PRIVATE)
@@ -99,7 +118,35 @@ class ProfileFragment : Fragment() {
         }
 
 
+        total_followers.setOnClickListener{
+            val intent=Intent(context, ShowUsersActivity::class.java)
+            intent.putExtra("id",profileId)
+            intent.putExtra("title","followers")
+            startActivity(intent)
+        }
 
+        total_followings.setOnClickListener{
+            val intent=Intent(context, ShowUsersActivity::class.java)
+            intent.putExtra("id",profileId)
+            intent.putExtra("title","following")
+            startActivity(intent)
+        }
+
+
+        recyclerViewUpload.visibility=View.VISIBLE
+        recycleViewSavedPosts.visibility=View.GONE
+
+
+        myPostsBtn.setOnClickListener{
+            recycleViewSavedPosts.visibility=View.GONE
+            recyclerViewUpload.visibility=View.VISIBLE
+        }
+
+
+        savePostBtn.setOnClickListener{
+            recyclerViewUpload.visibility=View.GONE
+            recycleViewSavedPosts.visibility=View.VISIBLE
+        }
 
 
         edit_account_btn.setOnClickListener {
@@ -141,6 +188,7 @@ class ProfileFragment : Fragment() {
         userInfo()
         myPhotos()
         getTotalNumberOfPosts()
+        mySaves()
 
         return view
     }
@@ -298,6 +346,58 @@ class ProfileFragment : Fragment() {
     }
 
 
+    private fun mySaves(){
+        mySavesImage=ArrayList()
+
+        val saveRef=FirebaseDatabase.getInstance().reference.child("Saves").child(firebaseUser.uid)
+
+        saveRef.addValueEventListener(object : ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if(snapshot.exists()){
+                    for(snap in snapshot.children){
+                        (mySavesImage as ArrayList<String>).add(snap.key!!)
+                    }
+                    readSavedImages()
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+
+            }
+
+        })
+    }
+
+
+    private fun readSavedImages() {
+        val postRef=FirebaseDatabase.getInstance().reference.child("Posts")
+
+        postRef.addValueEventListener(object : ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if(snapshot.exists()){
+                    (postListSaved as ArrayList<Post>).clear()
+
+                    for(snap in snapshot.children){
+                        val post=snap.getValue(Post::class.java)
+
+                        for(key in mySavesImage!!){
+                            if(post!!.getPostId()==key){
+                                (postListSaved as ArrayList<Post>).add(post)
+                            }
+                        }
+                    }
+
+                    myImagesAdapterSavedImage!!.notifyDataSetChanged()
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+
+            }
+
+        })
+    }
+
 
     override fun onStop() {
         super.onStop()
@@ -322,8 +422,5 @@ class ProfileFragment : Fragment() {
         pref?.putString("profileId",firebaseUser.uid)
         pref?.apply()
     }
-
-
-
 
 }

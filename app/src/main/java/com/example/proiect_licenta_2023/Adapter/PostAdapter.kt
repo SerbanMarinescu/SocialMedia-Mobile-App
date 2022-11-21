@@ -15,6 +15,7 @@ import com.example.proiect_licenta_2023.MainActivity
 import com.example.proiect_licenta_2023.Model.Post
 import com.example.proiect_licenta_2023.Model.User
 import com.example.proiect_licenta_2023.R
+import com.example.proiect_licenta_2023.ShowUsersActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DataSnapshot
@@ -54,6 +55,13 @@ class PostAdapter(private val mContext: Context,
         numberOfLikes(holder.likes, post.getPostId())
         numberOfComments(holder.comments, post.getPostId())
         checkSavedStatus(post.getPostId(),holder.saveButton)
+
+        holder.likes.setOnClickListener {
+            val intent=Intent(mContext, ShowUsersActivity::class.java)
+            intent.putExtra("id",post.getPostId())
+            intent.putExtra("title","likes")
+            mContext.startActivity(intent)
+        }
 
         holder.likeButton.setOnClickListener{
             if(holder.likeButton.tag == "Like"){

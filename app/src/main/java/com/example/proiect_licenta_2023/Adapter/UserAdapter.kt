@@ -1,6 +1,7 @@
 package com.example.proiect_licenta_2023.Adapter
 
 import android.content.Context
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +13,7 @@ import androidx.annotation.NonNull
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.example.proiect_licenta_2023.Fragments.ProfileFragment
+import com.example.proiect_licenta_2023.MainActivity
 import com.example.proiect_licenta_2023.Model.User
 import com.example.proiect_licenta_2023.R
 import com.google.firebase.auth.FirebaseAuth
@@ -44,10 +46,18 @@ class UserAdapter (private var mContext:Context,
         checkFollowingStatus(user.getUid(),holder.followBtn,holder.unfollowBtn)
 
         holder.itemView.setOnClickListener(View.OnClickListener {
-            val pref=mContext.getSharedPreferences("PREFS",Context.MODE_PRIVATE).edit()
-            pref.putString("profileId",user.getUid())
-            pref.apply()
-            (mContext as FragmentActivity).supportFragmentManager.beginTransaction().replace(R.id.fragment_container,ProfileFragment()).commit()
+            if(isFragment){
+                val pref=mContext.getSharedPreferences("PREFS",Context.MODE_PRIVATE).edit()
+                pref.putString("profileId",user.getUid())
+                pref.apply()
+                (mContext as FragmentActivity).supportFragmentManager.beginTransaction()
+                    .replace(R.id.fragment_container,ProfileFragment()).commit()
+            }
+            else{
+                val intent=Intent(mContext,MainActivity::class.java)
+                intent.putExtra("publisherId",user.getUid())
+                mContext.startActivity(intent)
+            }
         })
 
         holder.unfollowBtn.setOnClickListener {
@@ -94,6 +104,7 @@ class UserAdapter (private var mContext:Context,
                             }
                         }
                 }
+                addNotification(user.getUid())
             }
         }
     }
@@ -138,5 +149,17 @@ class UserAdapter (private var mContext:Context,
             }
 
         })
+    }
+
+    private fun addNotification(userId:String){
+        val notificationRef=FirebaseDatabase.getInstance().reference.child("Notifications").child(userId)
+
+        val notificationMap=HashMap<String, Any>()
+        notificationMap["userid"]=firebaseUser!!.uid
+        notificationMap["text"]="started following you"
+        notificationMap["postid"]=""
+        notificationMap["ispost"]=false
+
+        notificationRef.push().setValue(notificationMap)
     }
 }

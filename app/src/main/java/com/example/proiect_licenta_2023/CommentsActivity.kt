@@ -124,6 +124,7 @@ class CommentsActivity : AppCompatActivity() {
 
         commentsRef.push().setValue(commentsMap)
 
+        addNotification()
         addComment.text.clear()
 
     }
@@ -152,5 +153,16 @@ class CommentsActivity : AppCompatActivity() {
     }
 
 
+    private fun addNotification(){
+        val notificationRef=FirebaseDatabase.getInstance().reference.child("Notifications").child(publisherId)
+
+        val notificationMap=HashMap<String, Any>()
+        notificationMap["userid"]=firebaseUser!!.uid
+        notificationMap["text"]="commented: "+addComment.text.toString()
+        notificationMap["postid"]=postId
+        notificationMap["ispost"]=true
+
+        notificationRef.push().setValue(notificationMap)
+    }
 
 }

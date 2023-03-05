@@ -9,8 +9,11 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.NonNull
+import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.example.proiect_licenta_2023.CommentsActivity
+import com.example.proiect_licenta_2023.Fragments.PostDetailsFragment
+import com.example.proiect_licenta_2023.Fragments.ProfileFragment
 import com.example.proiect_licenta_2023.MainActivity
 import com.example.proiect_licenta_2023.Model.Post
 import com.example.proiect_licenta_2023.Model.User
@@ -55,6 +58,30 @@ class PostAdapter(private val mContext: Context,
         numberOfLikes(holder.likes, post.getPostId())
         numberOfComments(holder.comments, post.getPostId())
         checkSavedStatus(post.getPostId(),holder.saveButton)
+
+        holder.postImage.setOnClickListener{
+            val editor=mContext.getSharedPreferences("PREFS",Context.MODE_PRIVATE).edit()
+            editor.putString("postId", post.getPostId())
+            editor.apply()
+            (mContext as FragmentActivity).supportFragmentManager
+                .beginTransaction().replace(R.id.fragment_container, PostDetailsFragment()).commit()
+        }
+
+        holder.publisher.setOnClickListener{
+            val editor=mContext.getSharedPreferences("PREFS",Context.MODE_PRIVATE).edit()
+            editor.putString("profileId", post.getPublisher())
+            editor.apply()
+            (mContext as FragmentActivity).supportFragmentManager
+                .beginTransaction().replace(R.id.fragment_container, ProfileFragment()).commit()
+        }
+
+        holder.profileImage.setOnClickListener{
+            val editor=mContext.getSharedPreferences("PREFS",Context.MODE_PRIVATE).edit()
+            editor.putString("profileId", post.getPublisher())
+            editor.apply()
+            (mContext as FragmentActivity).supportFragmentManager
+                .beginTransaction().replace(R.id.fragment_container, ProfileFragment()).commit()
+        }
 
         holder.likes.setOnClickListener {
             val intent=Intent(mContext, ShowUsersActivity::class.java)

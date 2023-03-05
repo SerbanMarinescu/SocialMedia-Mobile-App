@@ -56,13 +56,10 @@ class HomeFragment : Fragment() {
         postList=ArrayList()
         postAdapter=context?.let{ PostAdapter(it,postList as ArrayList<Post>)}
         recyclerView?.adapter=postAdapter
+        recyclerView!!.setHasFixedSize(true)
 
-
-        val linearLayoutManager2=LinearLayoutManager(context)
-        linearLayoutManager2.reverseLayout=true
-        linearLayoutManager2.stackFromEnd=true
+        val linearLayoutManager2=LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL,false)
         recyclerViewStory?.layoutManager=linearLayoutManager2
-
 
         storyList=ArrayList()
         storyAdapter=context?.let{ StoryAdapter(it,storyList as ArrayList<Story>)}
